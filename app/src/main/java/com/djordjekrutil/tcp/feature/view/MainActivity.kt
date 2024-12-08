@@ -6,6 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -15,7 +18,9 @@ import com.djordjekrutil.tcp.core.platform.BaseActivity
 import com.djordjekrutil.tcp.feature.navigation.Navigation
 import com.djordjekrutil.tcp.feature.navigation.NavigationItem
 import com.djordjekrutil.tcp.ui.theme.primary
+import com.djordjekrutil.tcp.ui.utils.LoadingView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 
@@ -43,12 +48,27 @@ fun MainScreen(
     finishActivity: () -> Unit
 ) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
-    val isAtRootDestination =
-        currentBackStackEntry.value?.destination?.route == NavigationItem.Tasks.route
+    val currentRoute = currentBackStackEntry.value?.destination?.route
+    val previousRoute = remember { mutableStateOf<String?>(null) }
+    val showLoading = remember { mutableStateOf(false) }
 
+    LaunchedEffect(currentRoute) {
+        if (previousRoute.value == NavigationItem.Splash.route && currentRoute == NavigationItem.Tasks.route) {
+            showLoading.value = true
+            delay(500)
+            showLoading.value = false
+        }
+        previousRoute.value = currentRoute
+    }
+
+    if (showLoading.value) {
+        LoadingView()
+    } else {
+        Navigation(navController = navController)
+    }
+
+    val isAtRootDestination = currentRoute == NavigationItem.Tasks.route
     BackHandler(enabled = isAtRootDestination) {
         finishActivity()
     }
-
-    Navigation(navController = navController)
 }

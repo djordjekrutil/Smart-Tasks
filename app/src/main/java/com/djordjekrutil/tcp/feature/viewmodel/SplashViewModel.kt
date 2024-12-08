@@ -28,6 +28,7 @@ class SplashViewModel @Inject constructor(
 
     private fun syncTasks() {
         viewModelScope.launch {
+            delay(1400)
             var progressBarJob: Job? = null
 
             try {
