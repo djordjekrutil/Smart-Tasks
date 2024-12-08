@@ -1,0 +1,7 @@
+<resources>
+
+    <style name="Theme.TCP" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+</resources>
